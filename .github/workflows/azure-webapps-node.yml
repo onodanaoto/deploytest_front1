@@ -1,0 +1,35 @@
+name: フロントエンドのデプロイ
+
+on:
+  push:
+    branches: [ "main" ]
+
+env:
+  AZURE_WEBAPP_NAME: tech0-gen-8-step3-testapp-node2-25
+  AZURE_WEBAPP_PACKAGE_PATH: '.'
+  NODE_VERSION: '18.x'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Node.jsのセットアップ
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+
+    - name: 依存関係のインストール
+      run: npm ci
+
+    - name: ビルド
+      run: npm run build
+
+    - name: Azureへのデプロイ
+      uses: azure/webapps-deploy@v2
+      with:
+        app-name: ${{ env.AZURE_WEBAPP_NAME }}
+        publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+        package: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }} 
